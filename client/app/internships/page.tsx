@@ -224,7 +224,7 @@ export default function InternshipsPage() {
           </div>
 
           <h1 className="text-4xl md:text-5xl font-bold text-blue-950 dark:text-blue-950 tracking-tight leading-tight">
-            <span className="text-emerald-500">Intern With Us –</span>
+           	<span className="text-emerald-500">Intern With Us –</span>
             <span className="text-blue-950"> Build</span>
             <span className="text-yellow-400 font-mono"> Skills</span>
             <span className="text-blue-950"> That</span>
