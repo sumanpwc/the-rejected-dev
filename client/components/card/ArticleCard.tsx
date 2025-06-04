@@ -53,7 +53,7 @@ export default function ArticleCard({
       className="group flex flex-col rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden"
     >
       <Link
-        href={`/blog/${slug}`}
+        href={`/articles/${slug}`}
         className="relative block h-48 sm:h-56 w-full overflow-hidden rounded-t-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
         aria-label={`Read article: ${title}`}
       >
@@ -78,7 +78,7 @@ export default function ArticleCard({
           id={`${id}-title`}
           className="text-xl font-semibold text-slate-900 dark:text-white mb-2 line-clamp-2"
         >
-          <Link href={`/blog/${slug}`} className="hover:text-blue-600 transition-colors">
+          <Link href={`/articles/${slug}`} className="hover:text-blue-600 transition-colors">
             {title}
           </Link>
         </h2>
