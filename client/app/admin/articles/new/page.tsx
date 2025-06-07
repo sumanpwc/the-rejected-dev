@@ -134,19 +134,14 @@ export default function NewArticlePage() {
   const [codeBlocks, setCodeBlocks] = useState([{ code: "", language: "javascript", caption: "" }]);
   const [faqSchema, setFaqSchema] = useState([{ question: "", answer: "" }]);
 
-  // Read Time (auto + manual)
-  const [readTime, setReadTime] = useState<number | "">("");
-  const [readTimeOverride, setReadTimeOverride] = useState(false);
+  // --- Utility Functions ---
+  function countWords(text: string): number {
+    return text.split(/\s+/).filter(Boolean).length;
+  }
 
-  // Auto-calc readTime on content change
-  useEffect(() => {
-    if (!readTimeOverride) {
-      const totalEssence = headings.map(h => h.essence || "").join(" ");
-      const words = totalEssence.trim().split(/\s+/).length;
-      const time = Math.ceil(words / 200); // avg 200 wpm
-      setReadTime(time || "");
-    }
-  }, [headings, readTimeOverride]);
+  function estimateReadingTime(wordCount: number): number {
+    return Math.ceil(wordCount / 200); // avg 200 wpm
+  }
 
   // Slug validation (only letters, numbers, hyphens)
   const validateSlug = (s: string) => {
@@ -209,6 +204,10 @@ export default function NewArticlePage() {
       }
     }
 
+    const fullEssence = headings?.map(h => h.essence || "").join("\n\n") || "";
+    const wordCount = countWords(fullEssence);
+    const readingTime = estimateReadingTime(wordCount);
+
     const payload = {
       title,
       slug,
@@ -220,7 +219,7 @@ export default function NewArticlePage() {
       canonicalUrl,
       ogMeta,
       twitterMeta,
-      readTime: typeof readTime === "number" ? readTime : undefined,
+      readTime: readingTime,
       isPublished,
       isFeatured,
       isPinned,
@@ -319,27 +318,6 @@ export default function NewArticlePage() {
           />
           {canonicalUrlError && <p className="text-red-600 text-sm">{canonicalUrlError}</p>}
 
-          {/* Read Time (auto + override) */}
-          <div className="flex items-center space-x-3">
-            <label>Read Time (minutes):</label>
-            <Input
-              type="number"
-              value={typeof readTime === "number" ? readTime : ""}
-              disabled={!readTimeOverride}
-              onChange={(e) => setReadTime(Number(e.target.value))}
-              min={1}
-              max={120}
-              className="w-20"
-            />
-            <label className="inline-flex items-center space-x-2">
-              <input
-                type="checkbox"
-                checked={readTimeOverride}
-                onChange={() => setReadTimeOverride(!readTimeOverride)}
-              />
-              <span>Override</span>
-            </label>
-          </div>
 
           {/* Internal Links */}
           <div className="space-y-2">
@@ -373,7 +351,7 @@ export default function NewArticlePage() {
               <PlusCircle className="w-4 h-4 mr-2" /> Add Internal Link
             </Button>
           </div>
-          
+
           {/* External Links */}
           <div className="space-y-2">
             <h2 className="font-semibold text-lg">External Links</h2>
