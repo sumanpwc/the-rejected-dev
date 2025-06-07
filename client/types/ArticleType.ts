@@ -8,6 +8,7 @@ export type CodeLanguage =
   | 'css'
   | 'json'
   | 'bash'
+  | 'java'
   | 'other';
 
 export interface CodeBlock {
@@ -17,18 +18,34 @@ export interface CodeBlock {
   caption?: string;
 }
 
-export type HeadingType = 'H2' | 'H3';
+interface ImageAsset{
+  alt: string;
+  url: string;
+}
+
+export type HeadingType = 'h2' | 'h3';
 
 export interface Heading {
   _id: string;
   type: HeadingType;
   text: string;
+  essence: string;
+  images: ImageAsset[];
+  codeBlocks: CodeBlock[];
+
 }
 
-export interface OgMeta {
+interface Images{
+  _id: string;
+  alt: string;
+  url: string;
+}
+
+interface OgMeta {
   title?: string;
   description?: string;
   image?: string;
+  type?: 'website' | 'article' | 'video' | 'profile' | string;
 }
 
 export interface TwitterMeta {
@@ -51,8 +68,8 @@ export interface ArticleType {
   slug: string;
   slugHistory?: string[];
 
-  content: string;
   coverImage?: string;
+  images: Images[];
 
   metaDescription: string;
   keywords: string[];
@@ -85,4 +102,9 @@ export interface ArticleType {
   updatedAt: string | Date;
 
   url?: string; // Virtual: `/articles/${slug}`
+
+/*
+  viewportMeta?: string;
+  fontSize?: string | number;
+*/
 }

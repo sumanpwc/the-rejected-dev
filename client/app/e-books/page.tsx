@@ -214,7 +214,7 @@ export default function EBooksPage() {
       <Dialog
         open={previewOpen}
         onClose={closePreview}
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-70"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background bg-opacity-70"
         aria-label={`Preview PDF of ${previewTitle}`}
       >
         <Dialog.Panel className="relative bg-white dark:bg-slate-900 rounded-lg w-full max-w-4xl h-[80vh] flex flex-col shadow-lg overflow-hidden">

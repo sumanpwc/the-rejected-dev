@@ -10,15 +10,24 @@ interface CodeBlock {
   caption?: string;
 }
 
+interface ImageAsset{
+  alt: string;
+  url: string;
+}
+
 interface Heading {
-  type: 'H2' | 'H3';
+  type: 'h2' | 'h3';
   text: string;
+  essence: string;
+  images?: ImageAsset[];
+  codeBlocks: CodeBlock[];
 }
 
 interface OgMeta {
   title?: string;
   description?: string;
   image?: string;
+  type?: 'website' | 'article' | 'video' | 'profile' | string;
 }
 
 interface TwitterMeta {
@@ -39,14 +48,11 @@ export interface IArticle extends Document {
   slug: string;
   slugHistory?: string[];
 
-  content: string;
   metaDescription: string;
   keywords: string[];
   tags: string[];
 
   headings: Heading[];
-  codeBlocks: CodeBlock[];
-
   coverImage?: string;
   author: string;
   internalLinks: string[];
@@ -94,11 +100,6 @@ const ArticleSchema: Schema<IArticle> = new Schema<IArticle>(
       type: [String],
       default: [],
     },
-    content: {
-      type: String,
-      required: true,
-      minlength: 100,
-    },
     metaDescription: {
       type: String,
       required: true,
@@ -117,25 +118,36 @@ const ArticleSchema: Schema<IArticle> = new Schema<IArticle>(
       {
         type: {
           type: String,
-          enum: ['H2', 'H3'],
+          enum: ['h2', 'h3'],
           required: true,
         },
         text: {
           type: String,
           required: true,
         },
+        essence: {
+          type: String,
+          required: true,
+        },
+        images: {
+          type: [{ alt: String, url: String }],
+          default: [],
+        },
+        codeBlocks: [
+          {
+            code: { type: String, required: true },
+            language: { type: String, required: true },
+            caption: { type: String },
+          },
+        ],
+        
       },
     ],
-    codeBlocks: [
-      {
-        code: { type: String, required: true },
-        language: { type: String, required: true },
-        caption: { type: String },
-      },
-    ],
+
     coverImage: {
       type: String,
     },
+    
     author: {
       type: String,
       required: true,
@@ -159,6 +171,10 @@ const ArticleSchema: Schema<IArticle> = new Schema<IArticle>(
       title: String,
       description: String,
       image: String,
+      type: {
+        type: String,
+        enum: ['website' , 'article' , 'video' , 'profile'],
+      },
     },
     twitterMeta: {
       title: String,

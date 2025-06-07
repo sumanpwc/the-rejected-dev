@@ -4,7 +4,8 @@ import type { ArticleType } from './ArticleType';
 
 export interface ArticlesResponse {
   data: ArticleType[];
-  currentPage: number;
+  page: number;
   totalPages: number;
-  totalItems: number;
+  total: number;
+  search: string
 }

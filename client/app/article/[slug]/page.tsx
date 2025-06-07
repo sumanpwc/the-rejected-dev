@@ -3,8 +3,8 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { getArticleBySlug } from '@/lib/api';
 import { ArticleType } from '@/types/ArticleType';
-import TableOfContents from '@/components/TableOfContents';
-import StructuredRenderer from '@/components/StructuredRenderer';
+import TableOfContents from '@/components/article/TableOfContents';
+import StructuredRenderer from '@/components/article/StructuredRenderer';
 
 type Props = { params: { slug: string } };
 
@@ -19,6 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: article.metaDescription,
     keywords: article.tags.join(', '),
     authors: [{ name: article.author }],
+    robots: `https://therejected.dev/articles/${article.slug}`,
     openGraph: {
       title: article.title,
       description: article.metaDescription,
@@ -34,7 +35,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
   };
 }
-
 // ----------- JSON-LD Structured Data -----------
 function ArticleStructuredData(article: ArticleType) {
   const structuredData = {
