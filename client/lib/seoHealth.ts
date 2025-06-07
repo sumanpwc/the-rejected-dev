@@ -77,6 +77,7 @@ function checkCoreWebVitals(vitals?: CoreWebVitals): string[] {
   return issues;
 }
 
+/*
 function parseFontSize(fontSize?: string | number): number | undefined {
   if (typeof fontSize === "number") return fontSize;
   if (typeof fontSize === "string") {
@@ -85,7 +86,7 @@ function parseFontSize(fontSize?: string | number): number | undefined {
   }
   return undefined;
 }
-/*
+
 function checkMobileFriendly(article: ArticleType): string[] {
   const issues: string[] = [];
   if (!article.viewportMeta)
