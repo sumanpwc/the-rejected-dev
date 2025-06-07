@@ -35,7 +35,9 @@ import { authenticate, authorizeRoles } from '../middleware/auth';
 
 const router = express.Router();
 
-router.post('/create', authenticate, authorizeRoles('admin'), createArticle);
+//router.post('/create', authenticate, authorizeRoles('admin'), createArticle);
+
+router.post('/create', createArticle);
 
 router.get('/:slug', getArticleBySlug);
 

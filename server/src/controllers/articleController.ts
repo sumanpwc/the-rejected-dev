@@ -5,11 +5,25 @@ import ArticleModel from '../models/Article';
 export const createArticle = async (req: Request, res: Response) => {
   try {
     const data = req.body;
+
+    // Optional: Validate required fields before creating the document
+    if (!data.title || !data.slug) {
+      return res.status(400).json({ error: "Title and slug are required to create an Article." });
+    }
+
+    // Optional: Check for duplicate slug (if slugs must be unique)
+    const existing = await ArticleModel.findOne({ slug: data.slug });
+    if (existing) {
+      return res.status(409).json({ error: "An article with this slug already exists." });
+    }
+
     const article = new ArticleModel(data);
     await article.save();
+
     return res.status(201).json(article);
   } catch (error: any) {
-    return res.status(400).json({ error: error.message });
+    console.error("Error creating article:", error);
+    return res.status(500).json({ error: "Server error. Please try again later." });
   }
 };
 
@@ -56,7 +70,7 @@ export const getArticles = async (req: Request, res: Response) => {
       .sort({ isPinned: -1, createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
-      .select("title slug metaDescription coverImage tags author createdAt isFeatured isPinned")
+      //.select("title slug metaDescription coverImage tags author createdAt isFeatured isPinned")
       .lean();
 
     // Optional: Fetch all distinct tags (for frontend filters)
@@ -82,8 +96,6 @@ export const getArticles = async (req: Request, res: Response) => {
 export const getArticleBySlug = async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
-
-    console.log(slug);
 
     if (!slug || typeof slug !== 'string') {
       return res.status(400).json({ error: 'Invalid slug parameter' });
