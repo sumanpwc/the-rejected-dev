@@ -31,7 +31,7 @@ export default router;
 
 import express from 'express';
 import { createArticle, getArticleBySlug, getArticles, updateArticle, deleteArticle } from '../controllers/articleController';
-import { authenticate, authorizeRoles } from '../middleware/auth';
+// import { authenticate, authorizeRoles } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -43,8 +43,10 @@ router.get('/:slug', getArticleBySlug);
 
 router.get('/', getArticles);
 
-router.put('/update/:id', authenticate, authorizeRoles('admin'), updateArticle);
+// router.put('/update/:id', authenticate, authorizeRoles('admin'), updateArticle);
 
-router.put('/delete/:id', authenticate, authorizeRoles('admin'), deleteArticle);
+// router.put('/delete/:id', authenticate, authorizeRoles('admin'), deleteArticle);
 
+router.delete('/delete/:id', deleteArticle);
+router.put('/update/:id', updateArticle);
 export default router;

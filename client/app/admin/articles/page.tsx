@@ -35,13 +35,12 @@ export default function AdminArticlesPage() {
 
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Add states
   const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft">("all");
   const [sortOrder, setSortOrder] = useState<"publishedAt-desc" | "publishedAt-asc" | "updatedAt-desc">("publishedAt-desc");
   const [activeTag, setActiveTag] = useState<string | null>(null);
 
-  // Replace fetchData
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -62,14 +61,13 @@ export default function AdminArticlesPage() {
       setArticles(response.data);
       setTotalPages(response.totalPages);
       setTotalItems(response.total);
-    } catch (error) {
+    } catch {
       toast.error("Failed to fetch articles.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Add to useEffect deps
   useEffect(() => {
     fetchData();
   }, [page, search, sortOrder, statusFilter, activeTag]);
@@ -81,16 +79,18 @@ export default function AdminArticlesPage() {
       await deleteArticle(confirmId);
       toast.success("Article deleted");
       await fetchData();
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete article.");
     } finally {
       setDeletingId(null);
       setConfirmId(null);
+      setIsDialogOpen(false);
     }
   };
 
   return (
     <div className="p-6 space-y-6">
+      {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl text-blue-950 font-bold">Articles</h1>
         <Link href="/admin/articles/new">
@@ -98,27 +98,31 @@ export default function AdminArticlesPage() {
         </Link>
       </div>
 
-      <div className="flex items-center gap-25">
-        <Input
-          placeholder="Search articles..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          className="w-full max-w-md"
-        />
-        <span className="text-sm text-muted-foreground">
-          Total: {totalItems}
-        </span>
-      
+      {/* Filters / Search - Sticky */}
+      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 py-3 px-4">
+        <div className="flex flex-wrap lg:flex-nowrap items-center justify-between gap-4">
+          
+          {/* Search Input */}
+          <Input
+            placeholder="Search articles..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            className="flex-1 min-w-[200px] max-w-sm"
+          />
 
-        <div className="flex flex-wrap items-center gap-20">
+          {/* Total Count */}
+          <span className="text-sm text-muted-foreground whitespace-nowrap">
+            Total: {totalItems}
+          </span>
+
           {/* Status Filter */}
-          <div>
+          <div className="flex items-center gap-2 whitespace-nowrap">
             <label className="text-sm font-medium">Status:</label>
             <select
-              className="ml-2 border rounded-md px-2 py-1 text-sm"
+              className="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={statusFilter}
               onChange={(e) =>
                 setStatusFilter(e.target.value as "all" | "published" | "draft")
@@ -130,11 +134,11 @@ export default function AdminArticlesPage() {
             </select>
           </div>
 
-          {/* Sort By */}
-          <div>
+          {/* Sort Filter */}
+          <div className="flex items-center gap-2 whitespace-nowrap">
             <label className="text-sm font-medium">Sort:</label>
             <select
-              className="ml-2 border rounded-md px-2 py-1 text-sm"
+              className="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={sortOrder}
               onChange={(e) =>
                 setSortOrder(
@@ -150,31 +154,10 @@ export default function AdminArticlesPage() {
               <option value="updatedAt-desc">Recently Updated</option>
             </select>
           </div>
-
-          {/* Active Tag Filter */}
-          {activeTag && (
-            <div className="flex items-center gap-2">
-              <span className="text-sm">
-                Filtered by tag:
-                <span className="ml-1 px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs">
-                  {activeTag}
-                </span>
-              </span>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  setActiveTag(null);
-                  setPage(1);
-                }}
-              >
-                Clear
-              </Button>
-            </div>
-          )}
         </div>
       </div>
 
+      {/* Content */}
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: PAGE_SIZE }).map((_, i) => (
@@ -184,142 +167,146 @@ export default function AdminArticlesPage() {
       ) : articles.length === 0 ? (
         <p className="text-center text-muted-foreground">No articles found.</p>
       ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-2 sm:p-1">
-        {articles.map((article) => {
-          const health = getSEOHealth(article);
-          const isDeleting = deletingId === article._id;
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-2">
+          {articles.map((article) => {
+            const health = getSEOHealth(article);
+            const isDeleting = deletingId === article._id;
 
-          return (
-            <Card key={article._id} className="relative">
-              <CardContent className="p-5 space-y-3">
-                {/* ✅ Title */}
-                <h2 className="text-lg font-semibold line-clamp-2">
-                  {article.title}
-                </h2>
+            return (
+              <Card key={article._id} className="relative">
+                <CardContent className="p-5 space-y-3">
+                  {/* Title */}
+                  <h2 className="text-lg font-semibold line-clamp-2">
+                    {article.title}
+                  </h2>
 
-                {/* ✅ SEO Health Badges with Tooltip */}
-                <div className="flex flex-wrap gap-2 text-xs">
-                  <span
-                    title="Overall SEO score based on structure and metadata"
-                    className={`px-2 py-1 rounded-full font-medium ${
-                      health.seoScore >= 80
-                        ? "bg-green-100 text-green-600"
-                        : health.seoScore >= 60
-                        ? "bg-yellow-100 text-yellow-600"
-                        : "bg-red-100 text-red-600"
-                    }`}
-                  >
-                    SEO Score: {health.seoScore}
-                  </span>
-                  <span
-                    title="Word count of the article content"
-                    className="bg-gray-100 text-stone-700 px-2 py-1 rounded-full"
-                  >
-                   Word Count: {health.wordCount} 
-                  </span>
+                  {/* SEO Health Badges */}
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    <span
+                      title="Overall SEO score"
+                      className={`px-2 py-1 rounded-full font-medium ${
+                        health.seoScore >= 80
+                          ? "bg-green-100 text-green-600"
+                          : health.seoScore >= 60
+                          ? "bg-yellow-100 text-yellow-600"
+                          : "bg-red-100 text-red-600"
+                      }`}
+                    >
+                      SEO Score: {health.seoScore}
+                    </span>
+                    <span
+                      title="Word count"
+                      className="bg-gray-100 text-stone-700 px-2 py-1 rounded-full"
+                    >
+                      Word Count: {health.wordCount}
+                    </span>
 
-                  <Button variant="outline" size="xs">
-                    <Link href={`/admin/articles/seo/${article.slug}`}>Check SEO Status</Link>
-                  </Button>
-                </div>
+                    <Button variant="outline" size="xs">
+                      <Link href={`/admin/articles/seo/${article.slug}`}>
+                        Check SEO Status
+                      </Link>
+                    </Button>
+                  </div>
 
-                {/* ✅ Meta description preview */}
-                <p className="text-sm text-muted-foreground line-clamp-2">
-                  {article.metaDescription}
-                </p>
+                  {/* Meta description */}
+                  <p className="text-sm text-muted-foreground line-clamp-2">
+                    {article.metaDescription}
+                  </p>
 
-                {/* ✅ Status + Action Buttons */}
-                <div className="flex justify-between items-center mt-2">
-                  <span
-                    className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                      article.isPublished
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {article.isPublished ? "Published" : "Draft"}
-                  </span>
+                  {/* Status + Actions */}
+                  <div className="flex justify-between items-center mt-2">
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                        article.isPublished
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {article.isPublished ? "Published" : "Draft"}
+                    </span>
 
-                  <div className="flex gap-2">
-                    {/* Edit Button */}
-                    <Link href={`/admin/articles/edit/${article.slug}`}>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        disabled={isDeleting}
-                        title="Edit Article"
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                    </Link>
-
-                    {/* Delete Dialog */}
-                    <Dialog>
-                      <DialogTrigger asChild>
+                    <div className="flex gap-2">
+                      <Link href={`/admin/articles/edit/${article.slug}`}>
                         <Button
                           size="icon"
                           variant="ghost"
                           disabled={isDeleting}
-                          title="Delete Article"
-                          onClick={() => setConfirmId(article._id)}
+                          title="Edit Article"
                         >
-                          <Trash2 className="w-4 h-4 text-destructive" />
+                          <Pencil className="w-4 h-4" />
                         </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>
-                            Confirm deletion of "{article.title}"?
-                          </DialogTitle>
-                        </DialogHeader>
-                        <div className="text-sm text-muted-foreground">
-                          This action is irreversible.
-                        </div>
-                        <DialogFooter className="mt-4">
+                      </Link>
+
+                      {/* Delete Dialog */}
+                      <Dialog
+                        open={isDialogOpen && confirmId === article._id}
+                        onOpenChange={(open) => {
+                          setIsDialogOpen(open);
+                          if (!open) setConfirmId(null);
+                        }}
+                      >
+                        <DialogTrigger asChild>
                           <Button
-                            variant="outline"
-                            onClick={() => setConfirmId(null)}
-                          >
-                            Cancel
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            onClick={handleConfirmDelete}
+                            size="icon"
+                            variant="ghost"
                             disabled={isDeleting}
+                            title="Delete Article"
+                            onClick={() => {
+                              setConfirmId(article._id);
+                              setIsDialogOpen(true);
+                            }}
                           >
-                            {isDeleting ? "Deleting..." : "Delete"}
+                            <Trash2 className="w-4 h-4 text-destructive" />
                           </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>
+                              Confirm deletion of "{article.title}"?
+                            </DialogTitle>
+                          </DialogHeader>
+                          <div className="text-sm text-muted-foreground">
+                            This action is irreversible.
+                          </div>
+                          <DialogFooter className="mt-4">
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                setConfirmId(null);
+                                setIsDialogOpen(false);
+                              }}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              onClick={handleConfirmDelete}
+                              disabled={isDeleting}
+                            >
+                              {isDeleting ? "Deleting..." : "Delete"}
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
                   </div>
-                </div>
 
-                {/* ✅ Tag filter buttons */}
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {article.tags.map((tag) => (
-                    <button
-                      key={tag}
-                      onClick={() => {
-                        setActiveTag(tag);
-                        setPage(1);
-                      }}
-                      className={`text-xs px-2 py-1 rounded-full transition ${
-                        tag === activeTag
-                          ? "bg-blue-600 text-white"
-                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                      }`}
-                    >
-                      {tag}
-                    </button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {article.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="text-xs px-2 py-1 rounded-full bg-gray-200 text-gray-700"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
       )}
 
       {/* Pagination */}

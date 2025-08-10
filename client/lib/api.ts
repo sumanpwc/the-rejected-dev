@@ -105,7 +105,7 @@ export async function getArticleBySlug(slug: string): Promise<ArticleType | null
 
 export async function deleteArticleById(id: string): Promise<void> {
   try {
-    await apiClient.delete(`/articles/${id}`);
+    await apiClient.delete(`/articles/delete/${id}`);
   } catch (error) {
     handleApiError(error);
   }
@@ -113,7 +113,7 @@ export async function deleteArticleById(id: string): Promise<void> {
 
 export async function deleteArticle(id: string): Promise<void> {
   try {
-    await apiClient.delete(`/articles/${id}`);
+    await apiClient.delete(`/articles/delete/${id}`);
   } catch (error) {
     handleApiError(error);
   }
