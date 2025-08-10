@@ -1,7 +1,34 @@
 import { Request, Response } from 'express';
 import ArticleModel from '../models/Article';
+import { generateSitemapFile } from './sitemapController';
 
 // Create new Article
+export const createArticle = async (req: Request, res: Response) => {
+  try {
+    const data = req.body;
+
+    if (!data.title || !data.slug) {
+      return res.status(400).json({ error: 'Title and slug are required' });
+    }
+
+    const existing = await ArticleModel.findOne({ slug: data.slug });
+    if (existing) {
+      return res.status(409).json({ error: 'Article with this slug already exists' });
+    }
+
+    const article = new ArticleModel(data);
+    await article.save();
+
+    // Regenerate sitemap immediately after new article is saved
+    //await generateSitemapFile();
+
+    return res.status(201).json(article);
+  } catch (error: any) {
+    console.error('Error creating article:', error);
+    return res.status(500).json({ error: 'Server error. Please try again later.' });
+  }
+};
+/*
 export const createArticle = async (req: Request, res: Response) => {
   try {
     const data = req.body;
@@ -26,7 +53,7 @@ export const createArticle = async (req: Request, res: Response) => {
     return res.status(500).json({ error: "Server error. Please try again later." });
   }
 };
-
+*/
 // Get paginated list of Articles
 export const getArticles = async (req: Request, res: Response) => {
   try {

@@ -34,6 +34,8 @@ import express from 'express';
 import articleRoutes from './routes/articleRoutes';
 import authRoutes from './routes/authRoutes';
 import { errorHandler } from './middleware/errorHandler';
+import sitemapRoutes from './routes/sitemapRoutes';
+// import { startSitemapCron } from './scheduler/sitemapScheduler';
 import helmet from 'helmet';
 import cors from 'cors';
 import morgan from 'morgan';
@@ -54,6 +56,11 @@ app.use(express.json());
 // Mount versioned API routes
 app.use('/api/v1/articles', articleRoutes);
 app.use('/api/auth', authRoutes);
+
+// Add after other routes
+app.use('/api/v1/sitemap', sitemapRoutes);
+
+// startSitemapCron();
 
 // Global Error Handler (keep this last)
 app.use(errorHandler);
