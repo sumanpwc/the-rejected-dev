@@ -826,6 +826,7 @@ export default function NewArticlePage() {
             </div>
 
             <div data-error-id="og_type" className="space-y-2">
+              <span className="text-red-600">* </span>
               <label className="font-medium">OG Type</label>
               <select value={ogMeta.type || ""} onChange={(e) => { setOgMeta(prev => ({ ...prev, type: e.target.value })); validateField("og_type", e.target.value); if (e.target.value !== "custom") { setCustomOgType(""); clearFieldError("og_custom_type"); } }} className={formErrors["og_type"] ? "border-red-500 w-full rounded px-3 py-2" : "w-full rounded px-3 py-2 border"}>
                 <option value="">Select OG Type (required)</option>
