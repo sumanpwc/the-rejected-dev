@@ -19,7 +19,10 @@ async function fetchArticle(slug: string): Promise<ArticleType | null> {
 
 // ========== Metadata ==========
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const article = await fetchArticle(params.slug);
+
+  const param = await params;
+  const article = await fetchArticle(param.slug);
+
   if (!article) return { title: 'Not Found' };
 
   const canonicalUrl = `https://therejected.dev/articles/${article.slug}`;
@@ -191,7 +194,8 @@ function AuthorBio({ author }: { author: string }) {
 
 // ========== Page Component ==========
 export default async function ArticlePage({ params }: Props) {
-  const article = await fetchArticle(params.slug);
+  const param = await params;
+  const article = await fetchArticle(param.slug);
   if (!article) return notFound();
 
   return (
